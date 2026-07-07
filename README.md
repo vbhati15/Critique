@@ -69,7 +69,7 @@ npm install
 cp .env.example .env
 ```
 
-Add your OpenRouter API key to `.env`:
+Add your OpenRouter API key to `.env`
 ```bash
 npm run dev
 ```
