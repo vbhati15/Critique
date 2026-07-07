@@ -3,11 +3,8 @@
 # Critique
 **AI-powered code reviewer directly on GitHub. Reviews your code. Judges your choices.**
 
-<img src="assets/cat.gif" width="500" height="207" alt="Critique" />
-
+<img src="assets/cat.gif" width="300" height="207" alt="Critique" />
 <br/>
-
-
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat-square&logo=node.js)](https://nodejs.org)
 [![OpenRouter](https://img.shields.io/badge/OpenRouter-LLaMA_3.3_70B-7C3AED?style=flat-square)](https://openrouter.ai)
 [![Chrome](https://img.shields.io/badge/Chrome-Extension-4285F4?style=flat-square&logo=google-chrome)](https://chrome.google.com/webstore)
