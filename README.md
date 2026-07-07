@@ -1,6 +1,6 @@
 <div align="center">
 
-# Critique
+# <img src="assets/logo.svg" width="40" height="40" alt="Critique logo" valign="middle" /> Critique
 **AI-powered code reviewer directly on GitHub. Reviews your code. Judges your choices.**
 
 <img src="assets/anime.gif" width="400" height="300" alt="Critique" />

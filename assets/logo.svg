@@ -1,0 +1,31 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="critique-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2b1055"/>
+      <stop offset="100%" stop-color="#1b2a4a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- badge background -->
+  <rect x="6" y="6" width="188" height="188" rx="44" fill="url(#critique-bg)"/>
+
+  <!-- AI sparkle -->
+  <path d="M166,20 C169,29 171,31 180,34 C171,37 169,39 166,48 C163,39 161,37 152,34 C161,31 163,29 166,20 Z" fill="#F5F3FF"/>
+
+  <!-- skeptical eyebrow over left eye -->
+  <path d="M45 52 L85 44" stroke="#F5F3FF" stroke-width="7" stroke-linecap="round" fill="none"/>
+
+  <!-- left eye: plain bracket "<" -->
+  <path d="M78 68 L48 96 L78 124" stroke="#F5F3FF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- right eye: bracket ">" -->
+  <path d="M122 68 L152 96 L122 124" stroke="#F5F3FF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- monocle over right eye -->
+  <circle cx="137" cy="96" r="38" stroke="#FBBF24" stroke-width="5" fill="none"/>
+  <path d="M164 123 Q178 140 158 152" stroke="#FBBF24" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <circle cx="158" cy="152" r="4" fill="#FBBF24"/>
+
+  <!-- asymmetric smirk -->
+  <path d="M68 150 Q104 168 140 144" stroke="#34D399" stroke-width="9" stroke-linecap="round" fill="none"/>
+</svg>
