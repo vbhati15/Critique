@@ -1,9 +1,9 @@
 <div align="center">
 
-# <img src="assets/logo.svg" width="40" height="40" alt="Critique logo" valign="middle" /> Critique
+# Critique
 **AI-powered code reviewer directly on GitHub. Reviews your code. Judges your choices.**
 
-<img src="assets/anime.gif" width="400" height="300" alt="Critique" />
+<img src="assets/logo.gif" width="240" height="240" alt="Critique logo" />
 <br/><br/>
 
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat-square&logo=node.js)](https://nodejs.org)
