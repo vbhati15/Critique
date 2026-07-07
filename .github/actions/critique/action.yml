@@ -1,0 +1,25 @@
+name: "Critique Auto-Review"
+description: "Composite action that runs the Critique auto-review on pull requests"
+inputs:
+  backend_url:
+    description: 'Full URL to the Critique backend (e.g. https://critique.example.com)'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install action dependencies
+      run: npm ci --prefix ./.github/actions/critique
+
+    - name: Run Critique auto-review
+      run: node ./.github/actions/critique/run.js
+      env:
+        BACKEND_URL: ${{ inputs.backend_url }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

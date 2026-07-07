@@ -1,0 +1,9 @@
+{
+  "name": "critique-action",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "node-fetch": "^3.3.2"
+  }
+}
