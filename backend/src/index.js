@@ -24,6 +24,28 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 app.use(generalLimiter);
 
+// Simple request logger + optional API-key auth for tunneled requests
+// Skip auth for health checks so monitoring/tunnels can verify connectivity
+app.use((req, res, next) => {
+  if (req.path === '/health' && req.method === 'GET') {
+    console.log('[Critique] Health check (no auth)');
+    return next();
+  }
+
+  const authHeader = req.headers.authorization || '';
+  const providedKey = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : req.query.key;
+  console.log(`[Critique] Incoming ${req.method} ${req.path} - Authorization present: ${!!authHeader}`);
+
+  if (process.env.CRITIQUE_BACKEND_KEY) {
+    if (!providedKey || providedKey !== process.env.CRITIQUE_BACKEND_KEY) {
+      console.warn('[Critique] Unauthorized request - invalid or missing CRITIQUE_BACKEND_KEY');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
+
+  next();
+});
+
 // ── Routes ──
 app.get('/health', (req, res) => {
   res.json({

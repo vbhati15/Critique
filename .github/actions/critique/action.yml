@@ -5,10 +5,17 @@ inputs:
     description: 'Full URL to the Critique backend (e.g. https://critique.example.com)'
     required: true
   github_token:
+<<<<<<< Updated upstream
     description: 'GitHub token used for PR file access and comments'
     required: true
   backend_key:
     description: 'Optional API key for authenticating with the backend'
+=======
+    description: 'GitHub token used to post PR reviews and comments'
+    required: true
+  backend_key:
+    description: 'Optional backend auth token for the Critique API'
+>>>>>>> Stashed changes
     required: false
 runs:
   using: "composite"
@@ -22,8 +29,12 @@ runs:
         node-version: '20'
 
     - name: Install action dependencies
+<<<<<<< Updated upstream
       run: npm ci --prefix ./.github/actions/critique
       shell: bash
+=======
+      run: npm install --prefix ./.github/actions/critique
+>>>>>>> Stashed changes
 
     - name: Run Critique auto-review
       run: node ./.github/actions/critique/run.js
@@ -31,4 +42,8 @@ runs:
       env:
         BACKEND_URL: ${{ inputs.backend_url }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
+<<<<<<< Updated upstream
         BACKEND_KEY: ${{ inputs.backend_key }}
+=======
+        CRITIQUE_BACKEND_KEY: ${{ inputs.backend_key }}
+>>>>>>> Stashed changes
