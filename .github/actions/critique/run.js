@@ -83,12 +83,25 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
       // call backend review endpoint
       let reviewResp;
       try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (process.env.CRITIQUE_BACKEND_KEY) {
+          headers['Authorization'] = `Bearer ${process.env.CRITIQUE_BACKEND_KEY}`;
+          console.log('Using CRITIQUE_BACKEND_KEY for auth');
+        }
+
         const resp = await fetch(`${BACKEND_URL.replace(/\/$/, '')}/review`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ code, filename }),
         });
-        reviewResp = await resp.json();
+        // Read response text first so we can log helpful debug info on parse errors
+        const respText = await resp.text();
+        try {
+          reviewResp = JSON.parse(respText);
+        } catch (parseErr) {
+          console.log('Review request failed for', filename, `status=${resp.status}`, `body=${respText && respText.length > 1000 ? respText.slice(0,1000) + '... (truncated)' : respText}`);
+          continue;
+        }
       } catch (err) {
         console.log('Review request failed for', filename, err.message);
         continue;
