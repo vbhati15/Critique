@@ -12,7 +12,12 @@ jobs:
       pull-requests: write
       issues: write
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Run Critique auto-review action
         uses: ./.github/actions/critique
         with:
           backend_url: ${{ secrets.CRITIQUE_BACKEND_URL }}
+          github_token: ${{ github.token }}
+          backend_key: ${{ secrets.CRITIQUE_BACKEND_KEY }}
