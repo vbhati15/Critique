@@ -93,7 +93,7 @@ curl -X POST http://localhost:3001/review \
 ## 🗺 Roadmap
 
 - [x] Phase 1 — Backend API (review, explain, summarize, commit rater)
-- [ ] Phase 2 — GitHub Action (diff fetching, inline comments, severity labels)
+- [x] Phase 2 — GitHub Action (diff fetching, inline comments, severity labels)
 - [ ] Phase 3 — Chrome Extension foundation (Manifest V3, content scripts, popup)
 - [ ] Phase 4 — Chrome Extension PR review overlay + sidebar
 - [ ] Phase 5 — README summarizer + commit rater + code explainer on hover
