@@ -84,6 +84,8 @@ Server runs at `http://localhost:3001`
 curl http://localhost:3001/health
 ```
 
+The next example is intentionally vulnerable and is only for testing the review bot. Do not copy it into real code.
+
 ```bash
 curl -X POST http://localhost:3001/review \
   -H "Content-Type: application/json" \

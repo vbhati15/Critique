@@ -56,9 +56,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.use('/review', aiLimiter, reviewRouter);
-app.use('/summarize', aiLimiter, summarizeRouter);
-app.use('/explain', aiLimiter, explainRouter);
+app.use('/review', aiLimiter);
+app.use('/review', reviewRouter);
+app.use('/summarize', aiLimiter);
+app.use('/summarize', summarizeRouter);
+app.use('/explain', aiLimiter);
+app.use('/explain', explainRouter);
 
 // ── 404 handler ──
 app.use((req, res) => {
