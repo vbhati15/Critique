@@ -31,4 +31,4 @@ runs:
       env:
         BACKEND_URL: ${{ inputs.backend_url }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
-        CRITIQUE_BACKEND_KEY: ${{ inputs.backend_key }}
+        CRITIQUE_BACKEND_KEY: ${{ inputs.backend_key != '' && inputs.backend_key || '' }}
