@@ -17,14 +17,14 @@
 
 ## ✨ Features
 
-- 🐛 **Bug Detection** — catches SQL injection, null refs, logic errors and more
+- 🐛 **Bug Detection** — flags common issues like null refs, logic errors, and unsafe string handling
 - 💡 **Smart Suggestions** — language-aware fixes with exact code recommendations
 - 🔍 **PR Review Overlay** — AI review sidebar directly on GitHub PR pages
 - 📝 **Commit Message Rater** — real-time quality score as you type
 - 📖 **README Summarizer** — 3-line AI summary of any repo in one click
 - 🔎 **Code Explainer** — plain English explanation of any selected code
 - ⚡ **GitHub Action** — auto-reviews every PR, posts inline comments
-- 🔒 **Secure** — rate limited, input validated, generated files skipped
+- 🔒 **Safety-minded defaults** — rate limited, input validated, generated files skipped
 
 ---
 
@@ -71,7 +71,7 @@ npm install
 cp .env.example .env
 ```
 
-Add your OpenRouter API key to `.env`
+Add your OpenRouter API key to `.env`. Keep this file out of Git; `backend/.gitignore` already excludes `.env` and `node_modules/`.
 ```bash
 npm run dev
 ```

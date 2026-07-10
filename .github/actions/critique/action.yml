@@ -1,5 +1,5 @@
-name: "Critique Auto-Review"
-description: "Composite action that runs the Critique auto-review on pull requests"
+name: "Critique PR Auto-Review"
+description: "Composite action used by the PR workflow to run Critique reviews"
 inputs:
   backend_url:
     description: 'Full URL to the Critique backend (e.g. https://critique.example.com)'
