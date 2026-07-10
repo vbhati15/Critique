@@ -5,7 +5,7 @@ import reviewRouter from './routes/review.js';
 import summarizeRouter from './routes/summarize.js';
 import explainRouter from './routes/explain.js';
 import { generalLimiter, aiLimiter } from './middleware/rateLimit.js';
-console.log('KEY:', process.env.OPENROUTER_API_KEY?.slice(0, 15));
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
