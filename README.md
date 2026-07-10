@@ -6,7 +6,7 @@
 <img src="assets/logo.gif" width="240" height="240" alt="Critique logo" />
 <br/><br/>
 
-[![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat-square&logo=node.js)](https://nodejs.org)
+[![Node.js](https://img.shields.io/badge/Node.js-24-339933?style=flat-square&logo=node.js)](https://nodejs.org)
 [![OpenRouter](https://img.shields.io/badge/OpenRouter-LLaMA_3.3_70B-7C3AED?style=flat-square)](https://openrouter.ai)
 [![Chrome](https://img.shields.io/badge/Chrome-Extension-4285F4?style=flat-square&logo=google-chrome)](https://chrome.google.com/webstore)
 [![GitHub Actions](https://img.shields.io/badge/GitHub-Action-2088FF?style=flat-square&logo=github-actions)](https://github.com/features/actions)
@@ -89,6 +89,40 @@ curl -X POST http://localhost:3001/review \
   -H "Content-Type: application/json" \
   -d '{"code": "function getUser(id) { return db.query(\"SELECT * FROM users WHERE id = \" + id); }", "language": "javascript"}'
 ```
+
+## 🌍 Deploying the Backend
+
+If tunneling keeps breaking, deploy the backend to a public host and point `CRITIQUE_BACKEND_URL` at it.
+
+### Recommended: Render
+
+Render is the simplest path for this backend:
+
+- Build command: `npm install`
+- Start command: `npm start`
+- Environment variables:
+  - `OPENROUTER_API_KEY`
+  - `CRITIQUE_BACKEND_KEY` (optional but recommended)
+  - `PORT` is set automatically by Render
+
+After deploy, use the Render HTTPS URL in your GitHub secret `CRITIQUE_BACKEND_URL`.
+
+### Also works: Railway
+
+Railway works too with the same commands and env vars:
+
+- Build command: `npm install`
+- Start command: `npm start`
+- Environment variables:
+  - `OPENROUTER_API_KEY`
+  - `CRITIQUE_BACKEND_KEY`
+
+Use the Railway public URL for `CRITIQUE_BACKEND_URL`.
+
+### When to choose which
+
+- Choose **Render** if you want the fewest moving parts and a simple public URL.
+- Choose **Railway** if you prefer its dashboard and Git-based deployment flow.
 
 ## 🗺 Roadmap
 
