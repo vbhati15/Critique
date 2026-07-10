@@ -2,7 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { Octokit } = require('@octokit/rest');
 
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const fetch = globalThis.fetch;
+
+if (typeof fetch !== 'function') {
+  throw new Error('Global fetch is not available in this Node runtime');
+}
 
 (async function main() {
   try {
@@ -83,12 +87,29 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
       // call backend review endpoint
       let reviewResp;
       try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (process.env.CRITIQUE_BACKEND_KEY) {
+          headers['Authorization'] = `Bearer ${process.env.CRITIQUE_BACKEND_KEY}`;
+          console.log('Using CRITIQUE_BACKEND_KEY for auth');
+        }
+
         const resp = await fetch(`${BACKEND_URL.replace(/\/$/, '')}/review`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ code, filename }),
         });
-        reviewResp = await resp.json();
+        const contentType = resp.headers.get('content-type') || '';
+        const respText = await resp.text();
+        if (!contentType.includes('application/json')) {
+          console.log('Review request failed for', filename, `status=${resp.status}`, `content-type=${contentType || 'missing'}`, `body=${respText && respText.length > 1000 ? respText.slice(0,1000) + '... (truncated)' : respText}`);
+          continue;
+        }
+        try {
+          reviewResp = JSON.parse(respText);
+        } catch (parseErr) {
+          console.log('Review request failed for', filename, `status=${resp.status}`, `parse_error=${parseErr.message}`, `body=${respText && respText.length > 1000 ? respText.slice(0,1000) + '... (truncated)' : respText}`);
+          continue;
+        }
       } catch (err) {
         console.log('Review request failed for', filename, err.message);
         continue;
@@ -129,7 +150,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
         await octokit.pulls.createReview({ owner, repo, pull_number, body: 'Automated AI review — inline comments below.', event: 'COMMENT', comments });
         console.log('Posted inline review with', comments.length, 'comments');
       } catch (err) {
-        console.error('Failed to post inline review:', err);
+        console.error('Failed to post inline review:', err.status || err.message, err.response?.data || 'no response data');
       }
     }
 

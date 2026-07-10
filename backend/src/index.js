@@ -5,7 +5,7 @@ import reviewRouter from './routes/review.js';
 import summarizeRouter from './routes/summarize.js';
 import explainRouter from './routes/explain.js';
 import { generalLimiter, aiLimiter } from './middleware/rateLimit.js';
-console.log('KEY:', process.env.OPENROUTER_API_KEY?.slice(0, 15));
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -24,6 +24,28 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 app.use(generalLimiter);
 
+// Simple request logger + optional API-key auth for tunneled requests
+// Skip auth for health checks so monitoring/tunnels can verify connectivity
+app.use((req, res, next) => {
+  if (req.path === '/health' && req.method === 'GET') {
+    console.log('[Critique] Health check (no auth)');
+    return next();
+  }
+
+  const authHeader = req.headers.authorization || '';
+  const providedKey = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : req.query.key;
+  console.log(`[Critique] Incoming ${req.method} ${req.path} - Authorization present: ${!!authHeader}`);
+
+  if (process.env.CRITIQUE_BACKEND_KEY) {
+    if (!providedKey || providedKey !== process.env.CRITIQUE_BACKEND_KEY) {
+      console.warn('[Critique] Unauthorized request - invalid or missing CRITIQUE_BACKEND_KEY');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
+
+  next();
+});
+
 // ── Routes ──
 app.get('/health', (req, res) => {
   res.json({
@@ -34,9 +56,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.use('/review', aiLimiter, reviewRouter);
-app.use('/summarize', aiLimiter, summarizeRouter);
-app.use('/explain', aiLimiter, explainRouter);
+app.use('/review', aiLimiter);
+app.use('/review', reviewRouter);
+app.use('/summarize', aiLimiter);
+app.use('/summarize', summarizeRouter);
+app.use('/explain', aiLimiter);
+app.use('/explain', explainRouter);
 
 // ── 404 handler ──
 app.use((req, res) => {
