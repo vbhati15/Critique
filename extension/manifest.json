@@ -5,10 +5,10 @@
   "description": "AI code review overlays for GitHub PRs.",
   "action": {
     "default_title": "Critique",
-    "default_popup": "popup.html"
+    "default_popup": "popup/popup.html"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/service-worker.js"
   },
   "permissions": [
     "storage",
@@ -28,13 +28,18 @@
         "https://github.com/*",
         "https://*.github.com/*"
       ],
-      "js": ["contentScript.js"],
+      "js": [
+        "content/github.js",
+        "content/pr-review.js",
+        "sidebar/sidebar.js"
+      ],
+      "css": ["content/pr-review.css"],
       "run_at": "document_idle"
     }
   ],
   "icons": {
-    "16": "assets/icon.svg",
-    "48": "assets/icon.svg",
-    "128": "assets/icon.svg"
+    "16": "icons/logo.svg",
+    "48": "icons/logo.svg",
+    "128": "icons/logo.svg"
   }
 }
