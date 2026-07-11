@@ -130,11 +130,24 @@ Use the Railway public URL for `CRITIQUE_BACKEND_URL`.
 
 - [x] Phase 1 — Backend API (review, explain, summarize, commit rater)
 - [x] Phase 2 — GitHub Action (diff fetching, inline comments, severity labels)
-- [ ] Phase 3 — Chrome Extension foundation (Manifest V3, content scripts, popup)
-- [ ] Phase 4 — Chrome Extension PR review overlay + sidebar
+- [x] Phase 3 — Chrome Extension foundation (Manifest V3, content scripts, popup)
+- [x] Phase 4 — Chrome Extension PR review overlay + sidebar
 - [ ] Phase 5 — README summarizer + commit rater + code explainer on hover
 - [ ] Phase 6 — Prompt engineering + language detection + response caching
 - [ ] Phase 7 — Config file support + rate limiting + error states
 - [ ] Phase 8 — Publish to Chrome Web Store + GitHub Marketplace + deploy
+
+## 🧩 Chrome Extension
+
+The extension lives in [`extension/`](extension/). To load it locally in Chrome:
+
+1. Open `chrome://extensions`
+2. Turn on Developer mode
+3. Click Load unpacked
+4. Select the `extension/` folder
+
+Inside the popup, set your backend URL first. During development, `http://localhost:3001` is the default.
+
+On GitHub PR pages, the extension adds an `AI Review` button and opens a right-side review panel. It also logs GitHub page detection to the console as a quick sanity check.
 
 ---

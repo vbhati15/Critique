@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Critique</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="badge">Critique</div>
+        <h1>Connect your backend</h1>
+        <p>Store the API URL Chrome will use for PR reviews and other GitHub overlays.</p>
+      </section>
+
+      <form id="settingsForm" class="card">
+        <label for="backendUrl">Backend URL</label>
+        <input id="backendUrl" name="backendUrl" type="url" placeholder="http://localhost:3001" autocomplete="url" spellcheck="false" required />
+
+        <div class="actions">
+          <button type="submit">Save</button>
+          <span id="status" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <p class="hint">Tip: use your local backend while developing, then swap in the deployed URL later.</p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -94,6 +94,8 @@ function buildReviewPrompt({ code, language, filename, context }) {
 
 ${context ? `Context: ${context}\n` : ''}
 
+If this input is a diff or patch, use the new-file line numbers provided in the diff context when assigning line numbers in issues.
+
 Analyze for:
 1. Bugs and logical errors
 2. Security vulnerabilities
