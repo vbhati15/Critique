@@ -101,8 +101,8 @@ After deploy, copy the HTTPS URL into your GitHub secret `CRITIQUE_BACKEND_URL`.
 - [x] Phase 2 — GitHub Action (diff fetching, inline comments, severity labels)
 - [x] Phase 3 — Chrome Extension foundation (Manifest V3, content scripts, popup)
 - [x] Phase 4 — Chrome Extension PR review overlay + sidebar
-- [ ] Phase 5 — README summarizer + commit rater + code explainer on hover
-- [ ] Phase 6 — Prompt engineering + language detection + response caching
+- [x] Phase 5 — README summarizer + commit rater + code explainer on hover
+- [x] Phase 6 — Prompt engineering + language detection + response caching
 - [ ] Phase 7 — Config file support + rate limiting + error states
 - [ ] Phase 8 — Publish to Chrome Web Store + GitHub Marketplace + deploy
 
