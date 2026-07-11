@@ -1,0 +1,6 @@
+{
+  "severity_threshold": "warning",
+  "skip_files": ["*.test.js", "migrations/"],
+  "focus": ["security", "performance"],
+  "language": "javascript"
+}

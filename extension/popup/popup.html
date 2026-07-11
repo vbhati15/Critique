@@ -10,13 +10,27 @@
     <main class="shell">
       <section class="hero">
         <div class="badge">Critique</div>
-        <h1>Connect your backend</h1>
-        <p>Store the API URL Chrome will use for PR reviews and other GitHub overlays.</p>
+        <h1>Critique settings</h1>
+        <p>Choose how Critique behaves across GitHub.</p>
       </section>
 
       <form id="settingsForm" class="card">
         <label for="backendUrl">Backend URL</label>
         <input id="backendUrl" name="backendUrl" type="url" placeholder="http://localhost:3001" autocomplete="url" spellcheck="false" required />
+
+        <fieldset>
+          <legend>Features</legend>
+          <label class="toggle"><input id="summarizerEnabled" type="checkbox" /> <span>README summarizer</span></label>
+          <label class="toggle"><input id="commitRaterEnabled" type="checkbox" /> <span>Commit message rater</span></label>
+          <label class="toggle"><input id="explainerEnabled" type="checkbox" /> <span>Code explainer on hover</span></label>
+        </fieldset>
+
+        <label for="reviewDepth">Review depth</label>
+        <select id="reviewDepth" name="reviewDepth">
+          <option value="quick">Quick</option>
+          <option value="standard">Standard</option>
+          <option value="deep">Deep</option>
+        </select>
 
         <div class="actions">
           <button type="submit">Save</button>

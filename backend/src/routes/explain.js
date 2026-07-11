@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
     res.json({ success: true, explanation });
   } catch (err) {
     console.error('[Critique] Explain error:', err.message);
-    res.status(500).json({ error: 'Explanation failed', details: err.message });
+    res.status(err.status === 429 ? 429 : 500).json({ error: err.status === 429 ? 'AI service is busy. Try again in a moment.' : 'Explanation failed', details: err.message });
   }
 });
 
@@ -35,7 +35,7 @@ router.post('/commit', async (req, res) => {
     res.json({ success: true, rating });
   } catch (err) {
     console.error('[Critique] Commit rating error:', err.message);
-    res.status(500).json({ error: 'Rating failed', details: err.message });
+    res.status(err.status === 429 ? 429 : 500).json({ error: err.status === 429 ? 'AI service is busy. Try again in a moment.' : 'Rating failed', details: err.message });
   }
 });
 

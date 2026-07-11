@@ -1,6 +1,7 @@
 const explanationCache = new Map();
 let explanationTimer;
 let explanationTooltip;
+let explainerEnabled = true;
 
 function getTooltip() {
   if (explanationTooltip) return explanationTooltip;
@@ -41,7 +42,9 @@ function explainTarget(target) {
   }, 650);
 }
 
-document.addEventListener('mouseover', (event) => explainTarget(event.target));
+document.addEventListener('mouseover', (event) => { if (explainerEnabled) explainTarget(event.target); });
 document.addEventListener('mouseout', (event) => {
   if (event.target.closest?.('td.blob-code, td[data-line-number], .blob-code')) hideTooltip();
 });
+
+window.__critiqueGitHub.getSettings().then((settings) => { explainerEnabled = settings.explainerEnabled; }).catch(console.error);

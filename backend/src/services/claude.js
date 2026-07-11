@@ -22,15 +22,17 @@ async function generate(prompt) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error?.message || 'OpenRouter API error');
+    const error = new Error(data.error?.message || 'OpenRouter API error');
+    error.status = response.status;
+    throw error;
   }
 
   return data.choices[0].message.content;
 }
 
 // ── Core review function ──
-export async function reviewCode({ code, language, filename, context }) {
-  const prompt = buildReviewPrompt({ code, language, filename, context });
+export async function reviewCode({ code, language, filename, context, depth = 'standard' }) {
+  const prompt = buildReviewPrompt({ code, language, filename, context, depth });
   const raw = await generate(prompt);
   return parseReviewResponse(raw);
 }
@@ -89,8 +91,13 @@ Respond in this exact JSON format only, no other text, no markdown:
 }
 
 // ── Build review prompt ──
-function buildReviewPrompt({ code, language, filename, context }) {
+function buildReviewPrompt({ code, language, filename, context, depth }) {
   const focus = reviewFocus(language, filename);
+  const depthInstruction = {
+    quick: 'Keep this concise: report only clear, high-impact bugs and security issues.',
+    deep: 'Inspect carefully for correctness, security, performance, maintainability, and edge cases. Return up to 12 worthwhile issues.',
+    standard: 'Balance signal and coverage; avoid nitpicks and report only actionable issues.',
+  }[depth] || 'Balance signal and coverage; avoid nitpicks and report only actionable issues.';
   return `You are an expert code reviewer. Review the following ${language} code${filename ? ` from file "${filename}"` : ''}.
 
 ${context ? `Context: ${context}\n` : ''}
@@ -105,6 +112,7 @@ Analyze for:
 5. Best practice violations
 
 Additional focus for this change: ${focus}
+Review depth: ${depthInstruction}
 
 Respond in this exact JSON format only. No markdown backticks, no preamble, no explanation — just raw JSON:
 

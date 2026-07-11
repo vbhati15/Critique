@@ -8,6 +8,33 @@ if (typeof fetch !== 'function') {
   throw new Error('Global fetch is not available in this Node runtime');
 }
 
+const DEFAULT_CONFIG = { severity_threshold: 'suggestion', skip_files: [], focus: [], language: '' };
+const SEVERITY_RANK = { good: 0, suggestion: 1, warning: 2, bug: 3 };
+
+function readConfig() {
+  const configPath = path.join(process.env.GITHUB_WORKSPACE || process.cwd(), 'critique.config.json');
+  if (!fs.existsSync(configPath)) return DEFAULT_CONFIG;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    const threshold = String(parsed.severity_threshold || DEFAULT_CONFIG.severity_threshold).toLowerCase();
+    if (!(threshold in SEVERITY_RANK)) throw new Error('severity_threshold must be bug, warning, suggestion, or good');
+    if (parsed.skip_files !== undefined && !Array.isArray(parsed.skip_files)) throw new Error('skip_files must be an array');
+    if (parsed.focus !== undefined && !Array.isArray(parsed.focus)) throw new Error('focus must be an array');
+    console.log('Loaded critique.config.json');
+    return { ...DEFAULT_CONFIG, ...parsed, severity_threshold: threshold };
+  } catch (error) {
+    console.warn(`Ignoring invalid critique.config.json: ${error.message}`);
+    return DEFAULT_CONFIG;
+  }
+}
+
+function matchesPattern(filename, pattern) {
+  const normalized = String(pattern).replace(/\\/g, '/');
+  if (normalized.endsWith('/')) return filename.startsWith(normalized);
+  const escaped = normalized.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*');
+  return new RegExp(`^${escaped}$`).test(filename);
+}
+
 (async function main() {
   try {
     const BACKEND_URL = process.env.BACKEND_URL;
@@ -28,6 +55,7 @@ if (typeof fetch !== 'function') {
     const pull_number = pr.number;
 
     const octokit = new Octokit({ auth: GITHUB_TOKEN });
+    const config = readConfig();
 
     // gather changed files
     const files = [];
@@ -53,7 +81,7 @@ if (typeof fetch !== 'function') {
     ];
 
     function shouldSkip(filename) {
-      return SKIP_PATTERNS.some((p) => filename.includes(p));
+      return SKIP_PATTERNS.some((p) => filename.includes(p)) || config.skip_files.some((pattern) => matchesPattern(filename, pattern));
     }
 
     const comments = [];
@@ -96,7 +124,12 @@ if (typeof fetch !== 'function') {
         const resp = await fetch(`${BACKEND_URL.replace(/\/$/, '')}/review`, {
           method: 'POST',
           headers,
-          body: JSON.stringify({ code, filename }),
+          body: JSON.stringify({
+            code,
+            filename,
+            language: config.language || undefined,
+            context: config.focus.length ? `Prioritize these review areas: ${config.focus.join(', ')}.` : undefined,
+          }),
         });
         const contentType = resp.headers.get('content-type') || '';
         const respText = await resp.text();
@@ -127,6 +160,7 @@ if (typeof fetch !== 'function') {
       for (const issue of review.issues) {
         const ln = issue.line;
         const severity = (issue.severity || 'suggestion').toLowerCase();
+        if ((SEVERITY_RANK[severity] ?? SEVERITY_RANK.suggestion) < SEVERITY_RANK[config.severity_threshold]) continue;
         const emoji = severity === 'bug' ? '🐛' : severity === 'warning' ? '⚠️' : severity === 'good' ? '✅' : '💡';
         const body = `${emoji} **${issue.title || severity}**\n\n${issue.description || ''}${issue.fix ? `\n\n**Fix:** ${issue.fix}` : ''}`;
 
@@ -156,6 +190,7 @@ if (typeof fetch !== 'function') {
 
     // Post top-level summary
     const summaryLines = [];
+    summaryLines.push('<!-- critique-summary -->');
     summaryLines.push('## 🤖 AI Review Summary');
     if (summaryItems.length === 0 && comments.length === 0) {
       summaryLines.push('- No issues found by automated review. ✅');
@@ -173,8 +208,16 @@ if (typeof fetch !== 'function') {
     }
 
     try {
-      await octokit.issues.createComment({ owner, repo, issue_number: pull_number, body: summaryLines.join('\n') });
-      console.log('Posted summary comment');
+      const body = summaryLines.join('\n');
+      const existing = await octokit.paginate(octokit.issues.listComments, { owner, repo, issue_number: pull_number, per_page: 100 });
+      const previous = existing.find((comment) => comment.user?.type === 'Bot' && comment.body?.includes('<!-- critique-summary -->'));
+      if (previous) {
+        await octokit.issues.updateComment({ owner, repo, comment_id: previous.id, body });
+        console.log('Updated summary comment');
+      } else {
+        await octokit.issues.createComment({ owner, repo, issue_number: pull_number, body });
+        console.log('Posted summary comment');
+      }
     } catch (err) {
       console.error('Failed to post summary comment:', err);
     }
@@ -219,7 +262,6 @@ if (typeof fetch !== 'function') {
     function capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); }
 
   } catch (err) {
-    console.error('Fatal action error:', err);
-    process.exit(1);
+    console.error('Critique review skipped due to an unexpected error:', err.message);
   }
 })();

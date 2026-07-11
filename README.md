@@ -95,6 +95,10 @@ If local tunneling is flaky, deploy the backend to Render and point `CRITIQUE_BA
 
 After deploy, copy the HTTPS URL into your GitHub secret `CRITIQUE_BACKEND_URL`.
 
+## Per-repository configuration
+
+Copy [`critique.config.example.json`](critique.config.example.json) to `critique.config.json` in a repository to configure its GitHub Action review. You can set a severity threshold, skip matching files, add review focus areas, and provide a language override.
+
 ## 🗺 Roadmap
 
 - [x] Phase 1 — Backend API (review, explain, summarize, commit rater)
@@ -103,7 +107,7 @@ After deploy, copy the HTTPS URL into your GitHub secret `CRITIQUE_BACKEND_URL`.
 - [x] Phase 4 — Chrome Extension PR review overlay + sidebar
 - [x] Phase 5 — README summarizer + commit rater + code explainer on hover
 - [x] Phase 6 — Prompt engineering + language detection + response caching
-- [ ] Phase 7 — Config file support + rate limiting + error states
+- [x] Phase 7 — Config file support + rate limiting + error states
 - [ ] Phase 8 — Publish to Chrome Web Store + GitHub Marketplace + deploy
 
 ---

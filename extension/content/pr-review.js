@@ -5,6 +5,8 @@ let panelMounted = false;
 let currentReview = null;
 let highlightedNodes = [];
 let sidebarLoaded = false;
+let lastReviewAt = 0;
+const REVIEW_COOLDOWN_MS = 3000;
 
 function isGitHubHost() {
   return location.hostname === 'github.com' || location.hostname.endsWith('.github.com');
@@ -315,6 +317,14 @@ function buildReviewInputFromDiff(diffText) {
 }
 
 async function generateReview() {
+  const remaining = REVIEW_COOLDOWN_MS - (Date.now() - lastReviewAt);
+  if (remaining > 0) {
+    await ensureSidebar();
+    showReviewPanel();
+    renderError(`Please wait ${Math.ceil(remaining / 1000)}s before reviewing again.`);
+    return;
+  }
+  lastReviewAt = Date.now();
   await ensureSidebar();
   showReviewPanel();
   renderLoadingState();
@@ -333,11 +343,18 @@ async function generateReview() {
       throw new Error(`Could not fetch the GitHub PR diff: ${message}`);
     }
     const reviewInput = buildReviewInputFromDiff(diffText).slice(0, 50000);
+    if (!reviewInput.trim() || !/^diff --git /m.test(diffText)) {
+      throw new Error('Nothing to review in this PR.');
+    }
+    const settings = await new Promise((resolve) => {
+      chrome.storage.sync.get(['critiqueSettings'], (result) => resolve(result.critiqueSettings || {}));
+    });
     const payload = {
       code: reviewInput,
       language: 'diff',
       filename: location.pathname,
       context: 'This is a GitHub pull request diff. Use the new-file line numbers from the diff hunks when reporting line numbers.',
+      depth: ['quick', 'standard', 'deep'].includes(settings.reviewDepth) ? settings.reviewDepth : 'standard',
     };
 
     let response;

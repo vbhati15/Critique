@@ -59,10 +59,11 @@ function mergeReviews(reviews) {
 }
 
 router.post('/', async (req, res) => {
-  const { code, language, filename = '', context } = req.body;
+  const { code, language, filename = '', context, depth = 'standard' } = req.body;
   if (!code || typeof code !== 'string') return res.status(400).json({ error: 'code is required and must be a string' });
   if (code.trim().length < 10) return res.status(400).json({ error: 'Code is too short to review' });
   if (code.length > 200000) return res.status(400).json({ error: 'Code exceeds maximum length (200,000 chars)' });
+  if (!['quick', 'standard', 'deep'].includes(depth)) return res.status(400).json({ error: 'depth must be quick, standard, or deep' });
   if (filename && shouldSkip(filename)) return res.json({ skipped: true, reason: `File "${filename}" is excluded from review.` });
 
   const chunks = splitLargeInput(code);
@@ -72,7 +73,7 @@ router.post('/', async (req, res) => {
       const chunkFilename = filenameForChunk(chunk, filename);
       if (shouldSkip(chunkFilename)) continue;
       const chunkLanguage = language && language !== 'diff' ? language : detectLanguage(chunkFilename, 'diff');
-      const key = createHash('sha256').update(`${chunkLanguage}\0${chunkFilename}\0${context || ''}\0${chunk}`).digest('hex');
+      const key = createHash('sha256').update(`${depth}\0${chunkLanguage}\0${chunkFilename}\0${context || ''}\0${chunk}`).digest('hex');
       const cached = getCached(key);
       if (cached) { reviews.push(cached); continue; }
       const result = await reviewCode({
@@ -80,6 +81,7 @@ router.post('/', async (req, res) => {
         language: chunkLanguage,
         filename: chunkFilename,
         context: `${context || ''}${chunks.length > 1 ? ` This is chunk ${reviews.length + 1} of ${chunks.length}; review only this chunk.` : ''}`,
+        depth,
       });
       reviews.push(setCached(key, result));
     }
@@ -87,7 +89,7 @@ router.post('/', async (req, res) => {
     res.json(mergeReviews(reviews));
   } catch (err) {
     console.error('[Critique] Review error:', err.message);
-    res.status(500).json({ error: 'Review failed', details: err.message });
+    res.status(err.status === 429 ? 429 : 500).json({ error: err.status === 429 ? 'AI service is busy. Try again in a moment.' : 'Review failed', details: err.message });
   }
 });
 

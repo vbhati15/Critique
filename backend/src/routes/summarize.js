@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
     res.json({ success: true, summary });
   } catch (err) {
     console.error('[Critique] Summarize error:', err.message);
-    res.status(500).json({ error: 'Summarization failed', details: err.message });
+    res.status(err.status === 429 ? 429 : 500).json({ error: err.status === 429 ? 'AI service is busy. Try again in a moment.' : 'Summarization failed', details: err.message });
   }
 });
 

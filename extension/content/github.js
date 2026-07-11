@@ -1,4 +1,6 @@
 const CRITIQUE_STORAGE_KEY = 'critiqueBackendUrl';
+const CRITIQUE_SETTINGS_KEY = 'critiqueSettings';
+const DEFAULT_SETTINGS = { summarizerEnabled: true, commitRaterEnabled: true, explainerEnabled: true, reviewDepth: 'standard' };
 
 function isGitHubHost() {
   return location.hostname === 'github.com' || location.hostname.endsWith('.github.com');
@@ -31,9 +33,19 @@ async function requestCritique(path, payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.details || result.error || 'Critique request failed.');
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    if (response.status === 429) throw new Error('AI service is busy. Try again in a moment.');
+    if (response.status >= 500) throw new Error('Critique server is unreachable. Check your backend URL.');
+    throw new Error(result.details || result.error || 'Critique request failed.');
+  }
   return result;
+}
+
+function getSettings() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get([CRITIQUE_SETTINGS_KEY], (result) => resolve({ ...DEFAULT_SETTINGS, ...(result[CRITIQUE_SETTINGS_KEY] || {}) }));
+  });
 }
 
 if (isGitHubHost() && !window.__critiqueGitHubLogged) {
@@ -41,4 +53,4 @@ if (isGitHubHost() && !window.__critiqueGitHubLogged) {
   console.log('[Critique] GitHub detected:', location.href);
 }
 
-window.__critiqueGitHub = { isGitHubHost, isPullRequestPage, isRepositoryRoot, requestCritique };
+window.__critiqueGitHub = { isGitHubHost, isPullRequestPage, isRepositoryRoot, requestCritique, getSettings };

@@ -123,3 +123,18 @@ button:hover {
 .hint {
   margin-top: 12px;
 }
+
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.78);
+  color: var(--text);
+  font: inherit;
+}
+
+fieldset { margin: 18px 0; padding: 0; border: 0; }
+legend { margin-bottom: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #cbd5e1; }
+label.toggle { display: flex; align-items: center; gap: 9px; margin: 9px 0; font-size: 13px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--text); }
+label.toggle input { width: 16px; height: 16px; accent-color: var(--accent-strong); }

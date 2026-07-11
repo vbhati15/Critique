@@ -28,16 +28,21 @@ function renderSummaryCard(container, text, error = false) {
   container.appendChild(content);
 }
 
-function mountRepoSummarizer() {
+async function mountRepoSummarizer() {
+  const settings = await window.__critiqueGitHub.getSettings();
+  if (!settings.summarizerEnabled) return;
   if (!window.__critiqueGitHub?.isRepositoryRoot() || document.getElementById(repoSummaryId)) return;
   const readme = readmeText();
-  if (readme.length < 20) return;
-
   const anchor = document.querySelector('h1') || document.querySelector('[data-testid="repository-header"]');
   if (!anchor) return;
   const wrap = document.createElement('div');
   wrap.id = repoSummaryId;
   wrap.className = 'critique-repo-summary';
+  if (readme.length < 20) {
+    renderSummaryCard(wrap, 'This repo has no README to summarize.', true);
+    anchor.insertAdjacentElement('afterend', wrap);
+    return;
+  }
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'critique-action-button';
@@ -62,5 +67,5 @@ function mountRepoSummarizer() {
   anchor.insertAdjacentElement('afterend', wrap);
 }
 
-mountRepoSummarizer();
-document.addEventListener('turbo:load', mountRepoSummarizer);
+mountRepoSummarizer().catch(console.error);
+document.addEventListener('turbo:load', () => mountRepoSummarizer().catch(console.error));

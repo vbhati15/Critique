@@ -1,4 +1,5 @@
 const ratedCommitInputs = new WeakSet();
+let commitRaterEnabled = true;
 
 function ratingClass(score) {
   if (score >= 8) return 'critique-commit-rating--good';
@@ -37,8 +38,12 @@ function attachCommitRater(input) {
 }
 
 function mountCommitRaters() {
+  if (!commitRaterEnabled) return;
   document.querySelectorAll('textarea[name="message"], textarea#commit-message, textarea.js-commit-message').forEach(attachCommitRater);
 }
 
-mountCommitRaters();
+window.__critiqueGitHub.getSettings().then((settings) => {
+  commitRaterEnabled = settings.commitRaterEnabled;
+  mountCommitRaters();
+}).catch(console.error);
 new MutationObserver(mountCommitRaters).observe(document.documentElement, { childList: true, subtree: true });
