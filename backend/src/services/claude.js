@@ -90,6 +90,7 @@ Respond in this exact JSON format only, no other text, no markdown:
 
 // ── Build review prompt ──
 function buildReviewPrompt({ code, language, filename, context }) {
+  const focus = reviewFocus(language, filename);
   return `You are an expert code reviewer. Review the following ${language} code${filename ? ` from file "${filename}"` : ''}.
 
 ${context ? `Context: ${context}\n` : ''}
@@ -102,6 +103,8 @@ Analyze for:
 3. Performance issues
 4. Code style and readability
 5. Best practice violations
+
+Additional focus for this change: ${focus}
 
 Respond in this exact JSON format only. No markdown backticks, no preamble, no explanation — just raw JSON:
 
@@ -127,6 +130,22 @@ ${code}
 }
 
 // ── Parse review response ──
+function reviewFocus(language = '', filename = '') {
+  const languageFocus = {
+    python: 'type hints, exception handling, Pythonic iteration, and PEP 8',
+    javascript: 'async error handling, null/undefined safety, and unsafe browser or Node APIs',
+    typescript: 'type safety, narrowing, async error handling, and unsafe assertions',
+    cpp: 'memory ownership, pointer safety, lifetime bugs, and resource cleanup',
+    java: 'exception handling, null safety, OOP boundaries, and resource management',
+    sql: 'parameterized queries, injection risks, transaction safety, and query performance',
+  };
+  const lower = filename.toLowerCase();
+  const extra = [];
+  if (lower.includes('test')) extra.push('test quality, edge cases, determinism, and meaningful assertions');
+  if (lower.includes('auth') || lower.includes('payment')) extra.push('security boundaries, secrets exposure, authorization, and input validation');
+  return [languageFocus[language] || 'correctness and maintainability', ...extra].join('; ');
+}
+
 function parseReviewResponse(raw) {
   try {
     const cleaned = raw

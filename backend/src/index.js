@@ -8,16 +8,24 @@ import { generalLimiter, aiLimiter } from './middleware/rateLimit.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const allowedOrigins = new Set([
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://github.com',
+]);
+
+function isAllowedOrigin(origin) {
+  return !origin
+    || allowedOrigins.has(origin)
+    || /^https:\/\/[^/]+\.github\.com$/.test(origin)
+    || /^chrome-extension:\/\/[a-p]{32}$/.test(origin);
+}
 
 // ── Middleware ──
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://github.com',
-    'https://*.github.com',
-    // Add your deployed frontend URL here later
-  ],
+  origin(origin, callback) {
+    callback(null, isAllowedOrigin(origin));
+  },
   methods: ['GET', 'POST'],
 }));
 
@@ -34,9 +42,10 @@ app.use((req, res, next) => {
 
   const authHeader = req.headers.authorization || '';
   const providedKey = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : req.query.key;
+  const isLocalRequest = ['::1', '127.0.0.1', '::ffff:127.0.0.1'].includes(req.ip);
   console.log(`[Critique] Incoming ${req.method} ${req.path} - Authorization present: ${!!authHeader}`);
 
-  if (process.env.CRITIQUE_BACKEND_KEY) {
+  if (process.env.CRITIQUE_BACKEND_KEY && !isLocalRequest) {
     if (!providedKey || providedKey !== process.env.CRITIQUE_BACKEND_KEY) {
       console.warn('[Critique] Unauthorized request - invalid or missing CRITIQUE_BACKEND_KEY');
       return res.status(401).json({ error: 'Unauthorized' });

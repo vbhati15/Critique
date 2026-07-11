@@ -236,18 +236,25 @@ async function getBackendUrl() {
 
 async function fetchPullRequestDiff() {
   const diffUrl = new URL(`${location.pathname}.diff`, location.origin);
-  const response = await fetch(diffUrl.toString(), {
-    credentials: 'include',
-    headers: {
-      Accept: 'text/plain, text/x-diff, */*',
-    },
+
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'CRITIQUE_FETCH_PR_DIFF', url: diffUrl.toString() },
+      (result) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+
+        if (!result?.ok) {
+          reject(new Error(result?.error || 'Failed to fetch diff.'));
+          return;
+        }
+
+        resolve(result.diff);
+      }
+    );
   });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch diff (${response.status})`);
-  }
-
-  return await response.text();
 }
 
 function buildReviewInputFromDiff(diffText) {
@@ -318,7 +325,13 @@ async function generateReview() {
       throw new Error('Set a backend URL in the extension popup first.');
     }
 
-    const diffText = await fetchPullRequestDiff();
+    let diffText;
+    try {
+      diffText = await fetchPullRequestDiff();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown network error';
+      throw new Error(`Could not fetch the GitHub PR diff: ${message}`);
+    }
     const reviewInput = buildReviewInputFromDiff(diffText).slice(0, 50000);
     const payload = {
       code: reviewInput,
@@ -327,17 +340,26 @@ async function generateReview() {
       context: 'This is a GitHub pull request diff. Use the new-file line numbers from the diff hunks when reporting line numbers.',
     };
 
-    const response = await fetch(`${backendUrl}/review`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    let response;
+    try {
+      response = await fetch(`${backendUrl}/review`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown network error';
+      throw new Error(`Could not reach the backend at ${backendUrl}: ${message}`);
+    }
 
     const result = await response.json();
     if (!response.ok) {
-      throw new Error(result.error || 'Review request failed');
+      const detail = typeof result.details === 'string' && result.details.trim()
+        ? `: ${result.details.trim()}`
+        : '';
+      throw new Error(`${result.error || 'Review request failed'}${detail}`);
     }
 
     const review = result.review || result;
