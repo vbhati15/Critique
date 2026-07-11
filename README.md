@@ -105,5 +105,5 @@ After deploy, copy the HTTPS URL into your GitHub secret `CRITIQUE_BACKEND_URL`.
 - [ ] Phase 6 — Prompt engineering + language detection + response caching
 - [ ] Phase 7 — Config file support + rate limiting + error states
 - [ ] Phase 8 — Publish to Chrome Web Store + GitHub Marketplace + deploy
-
+Testing the Critique extension.
 ---
