@@ -84,7 +84,7 @@ curl http://localhost:3001/health
 
 ## 🌍 Deploying the Backend
 
-If local tunneling is flaky, deploy the backend to Render or Railway and point `CRITIQUE_BACKEND_URL` at the public URL.
+If local tunneling is flaky, deploy the backend to Render and point `CRITIQUE_BACKEND_URL` at the public URL.
 
 ### Render
 

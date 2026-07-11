@@ -22,6 +22,15 @@
     "https://*/*",
     "http://*/*"
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sidebar/sidebar.html"],
+      "matches": [
+        "https://github.com/*",
+        "https://*.github.com/*"
+      ]
+    }
+  ],
   "content_scripts": [
     {
       "matches": [
