@@ -69,62 +69,31 @@
 cd backend
 npm install
 cp .env.example .env
-```
-
-Add your OpenRouter API key to `.env`. Keep this file out of Git; `backend/.gitignore` already excludes `.env` and `node_modules/`.
-```bash
 npm run dev
 ```
 
-Server runs at `http://localhost:3001`
+Add your OpenRouter API key to `.env`. Keep this file out of Git; `backend/.gitignore` already excludes `.env` and `node_modules/`.
 
-### Test
+The server runs at `http://localhost:3001`.
+
+### Quick Check
 
 ```bash
 curl http://localhost:3001/health
 ```
 
-The next example is intentionally vulnerable and is only for testing the review bot. Do not copy it into real code.
-
-```bash
-curl -X POST http://localhost:3001/review \
-  -H "Content-Type: application/json" \
-  -d '{"code": "function getUser(id) { return db.query(\"SELECT * FROM users WHERE id = \" + id); }", "language": "javascript"}'
-```
-
 ## 🌍 Deploying the Backend
 
-If tunneling keeps breaking, deploy the backend to a public host and point `CRITIQUE_BACKEND_URL` at it.
+If local tunneling is flaky, deploy the backend to Render or Railway and point `CRITIQUE_BACKEND_URL` at the public URL.
 
-### Recommended: Render
-
-Render is the simplest path for this backend:
+### Render
 
 - Build command: `npm install`
 - Start command: `npm start`
-- Environment variables:
-  - `OPENROUTER_API_KEY`
-  - `CRITIQUE_BACKEND_KEY` (optional but recommended)
-  - `PORT` is set automatically by Render
+- Environment variables: `OPENROUTER_API_KEY`, `CRITIQUE_BACKEND_KEY`
+- `PORT` is set automatically by the host
 
-After deploy, use the Render HTTPS URL in your GitHub secret `CRITIQUE_BACKEND_URL`.
-
-### Also works: Railway
-
-Railway works too with the same commands and env vars:
-
-- Build command: `npm install`
-- Start command: `npm start`
-- Environment variables:
-  - `OPENROUTER_API_KEY`
-  - `CRITIQUE_BACKEND_KEY`
-
-Use the Railway public URL for `CRITIQUE_BACKEND_URL`.
-
-### When to choose which
-
-- Choose **Render** if you want the fewest moving parts and a simple public URL.
-- Choose **Railway** if you prefer its dashboard and Git-based deployment flow.
+After deploy, copy the HTTPS URL into your GitHub secret `CRITIQUE_BACKEND_URL`.
 
 ## 🗺 Roadmap
 
@@ -136,18 +105,5 @@ Use the Railway public URL for `CRITIQUE_BACKEND_URL`.
 - [ ] Phase 6 — Prompt engineering + language detection + response caching
 - [ ] Phase 7 — Config file support + rate limiting + error states
 - [ ] Phase 8 — Publish to Chrome Web Store + GitHub Marketplace + deploy
-
-## 🧩 Chrome Extension
-
-The extension lives in [`extension/`](extension/). To load it locally in Chrome:
-
-1. Open `chrome://extensions`
-2. Turn on Developer mode
-3. Click Load unpacked
-4. Select the `extension/` folder
-
-Inside the popup, set your backend URL first. During development, `http://localhost:3001` is the default.
-
-On GitHub PR pages, the extension adds an `AI Review` button and opens a right-side review panel. It also logs GitHub page detection to the console as a quick sanity check.
 
 ---
